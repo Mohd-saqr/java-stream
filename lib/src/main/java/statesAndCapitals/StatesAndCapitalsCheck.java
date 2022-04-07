@@ -19,6 +19,7 @@ public class StatesAndCapitalsCheck
             firstFiveStateNames += state.getStateName();
         }
 
+
         String expectedStates = "AlabamaAlaskaArizonaArkansasCalifornia";
 
         return expectedStates.equals(firstFiveStateNames);

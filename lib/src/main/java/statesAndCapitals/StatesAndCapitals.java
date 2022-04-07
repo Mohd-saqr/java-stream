@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -65,28 +66,29 @@ public class StatesAndCapitals
         // B1. Submit the first five states
         // Use limit()
 
-        List<StateInfo> firstFiveStates = null;
+        List<StateInfo> firstFiveStates =   states.stream().limit(5).collect(toList());
 
         testResults.put("B1", StatesAndCapitalsCheck.basic1(firstFiveStates));
 
         // B2. Submit the last five states
         // Use skip()
 
-        List<StateInfo> lastFiveStates = null;
+
+
+        List<StateInfo> lastFiveStates = states.stream().skip(states.size()-5).collect(toList());
 
         testResults.put("B2", StatesAndCapitalsCheck.basic2(lastFiveStates));
 
         // B3. From 1-20, submit the first 5 numbers
-        // Use limit()
 
-        List<Integer> firstFiveNumbers = IntStream.range(1, 20).boxed().collect(toList());
+
+        List<Integer> firstFiveNumbers = IntStream.range(1, 20).boxed().collect(toList()).stream().limit(5).collect(toList());
 
         testResults.put("B3", StatesAndCapitalsCheck.basic3(firstFiveNumbers));
 
-        // B4. From 1-20, submit the last 5 numbers
-        // Use skip()
 
-        List<Integer> lastFiveNumbers = Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20).collect(toList());
+
+        List<Integer> lastFiveNumbers = Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20).collect(toList()).stream().skip(15).collect(toList());
 
         testResults.put("B4", StatesAndCapitalsCheck.basic4(lastFiveNumbers));
 
@@ -94,7 +96,7 @@ public class StatesAndCapitals
         // Use count() (or counting())
         // PS: Don't use states.size(). It's easier and IntelliJ will even warn you not to do things this way. But I want you to understand how to use count() (or counting()).
 
-        Long statesNumber = null;
+        Long statesNumber = states.stream().count();
 
         testResults.put("B5", StatesAndCapitalsCheck.basic5(statesNumber));
 
@@ -104,28 +106,28 @@ public class StatesAndCapitals
         // Use findAny() or findFirst(), and orElseThrow()
         // Can use filter()
 
-        StateInfo cardinalState = null;
+        StateInfo cardinalState = states.stream().filter(stateInfo -> stateInfo.getStateBird().matches("cardinal")).findAny().orElseThrow(()-> new RuntimeException());
 
         testResults.put("I1", StatesAndCapitalsCheck.int1(cardinalState));
 
         // I2. Find if any state's lowest elevation is less than 0
         // Use anyMatch()
 
-        Boolean isAnyStateLessThan0Elevation = null;
+        Boolean isAnyStateLessThan0Elevation = states.stream().anyMatch(stateInfo -> stateInfo.getLowestElevationInFeet()<0);
 
         testResults.put("I2", StatesAndCapitalsCheck.int2(isAnyStateLessThan0Elevation));
 
         // I3. Find if any state's highest elevation is greater than 21000
         // Use anyMatch()
 
-        Boolean isAnyStateGreaterThan21000Elevation = null;
+        Boolean isAnyStateGreaterThan21000Elevation = states.stream().anyMatch(stateInfo -> stateInfo.getHighestElevationInFeet()>21000);
 
         testResults.put("I3", StatesAndCapitalsCheck.int3(isAnyStateGreaterThan21000Elevation));
 
         // I4. Find if all states have an anthem
         // Use allMatch()
 
-        Boolean doAllStatesHaveAnAnthem = null;
+        Boolean doAllStatesHaveAnAnthem = states.stream().allMatch(stateInfo -> stateInfo.getStateAnthem()!=null);
 
         testResults.put("I4", StatesAndCapitalsCheck.int4(doAllStatesHaveAnAnthem));
 
@@ -133,7 +135,7 @@ public class StatesAndCapitals
         // Use noneMatch()
         // Can use String.split()
 
-        Boolean doNoStatesHaveAOneWordMotto = null;
+        Boolean doNoStatesHaveAOneWordMotto = states.stream().noneMatch(stateInfo -> stateInfo.getStateMotto().split("").length!=1);
 
         testResults.put("I5", StatesAndCapitalsCheck.int5(doNoStatesHaveAOneWordMotto));
 
@@ -142,7 +144,7 @@ public class StatesAndCapitals
         // A11. Submit the average yearly precipitation across all state capitals
         // Use collect(averagingDouble())
 
-        Double averageYearlyPrecipitationAcrossStateCapitals = null;
+        Double averageYearlyPrecipitationAcrossStateCapitals = states.stream().map(StateInfo::getCapital).collect(Collectors.averagingDouble(CapitalInfo::getAverageYearlyPrecipitationInInches));
 
         testResults.put("A11", StatesAndCapitalsCheck.adv11(averageYearlyPrecipitationAcrossStateCapitals));
 
@@ -150,21 +152,24 @@ public class StatesAndCapitals
         // Use collect(summingInt())  (PS: IntelliJ will warn you to use the version on the next line, but it's useful to see how summingInt() works)
         // Or use mapToInt() and sum()
 
-        Integer totalYearlyPrecipitationAcrossStateCapitals = null;
+        Integer totalYearlyPrecipitationAcrossStateCapitals = states.stream().map(StateInfo::getCapital).collect(Collectors.summingInt(CapitalInfo::getAverageYearlyPrecipitationInInches));
 
         testResults.put("A12", StatesAndCapitalsCheck.adv12(totalYearlyPrecipitationAcrossStateCapitals));
 
         // A13. Submit how many states are in each time zone (or group of time zones)
         // Use collect(groupingBy()) and counting()
 
-        Map<String, Long> numberOfStatesByTimeZone = null;
+        Map<String, Long> numberOfStatesByTimeZone = states.stream().map(StateInfo::getCapital).collect(Collectors.
+                groupingBy(CapitalInfo::getTimeZone,Collectors.counting()));
+
 
         testResults.put("A13", StatesAndCapitalsCheck.adv13(numberOfStatesByTimeZone));
 
         // A14. Submit how many state capitals are in each time zone
         // Use collect(groupingBy()) and counting()
 
-        Map<String, Long> numberOfStateCapitalsByTimeZone = null;
+        Map<String, Long> numberOfStateCapitalsByTimeZone = states.stream().map(StateInfo::getCapital).collect(Collectors.
+                groupingBy(CapitalInfo::getTimeZone,Collectors.counting()));
 
         testResults.put("A14", StatesAndCapitalsCheck.adv14(numberOfStateCapitalsByTimeZone));
 
@@ -173,28 +178,28 @@ public class StatesAndCapitals
         // A21. Submit all state trees, sorted alphabetically (ascending)
         // Use sorted() and map()
 
-        List<String> stateTreesSortedAscending = null;
+        List<String> stateTreesSortedAscending = states.stream().map(StateInfo::getStateTree).sorted().collect(toList());
 
         testResults.put("A21", StatesAndCapitalsCheck.adv21(stateTreesSortedAscending));
 
         // A22. Submit all state names, separated by "; "
         // Use collect(joining()) and map()
 
-        String allStateNamesSemicolonDelimited = null;
+        String allStateNamesSemicolonDelimited = states.stream().map(StateInfo::getStateName).collect(joining("; "));
 
         testResults.put("A22", StatesAndCapitalsCheck.adv22(allStateNamesSemicolonDelimited));
 
         // A23. Submit all distinct state birds
         // Use distinct() and map()
 
-        List<String> allDistinctStateBirds = null;
+        List<String> allDistinctStateBirds = states.stream().map(StateInfo::getStateBird).distinct().collect(toList());
 
         testResults.put("A23", StatesAndCapitalsCheck.adv23(allDistinctStateBirds));
 
         // A24. Submit all distinct state birds, but with any kind of mockingbird removed
         // Use distinct(), map(), and filter()
 
-        List<String> allDistinctStateBirdsMinusMockingbirds = null;
+        List<String> allDistinctStateBirdsMinusMockingbirds = states.stream().map(StateInfo::getStateBird).filter(s -> !s.contains("mockingbird")).distinct().collect(toList());
 
         testResults.put("A24", StatesAndCapitalsCheck.adv24(allDistinctStateBirdsMinusMockingbirds));
 
@@ -202,7 +207,7 @@ public class StatesAndCapitals
         // Use collect(counting()), map(), and distinct()
         // PS: Don't use count(). IntelliJ will warn you but I want you to see how counting() works.
 
-        Long numberOfDistinctStateBirds = null;
+        Long numberOfDistinctStateBirds = states.stream().map(StateInfo::getStateBird).distinct().count();
 
         testResults.put("A25", StatesAndCapitalsCheck.adv25(numberOfDistinctStateBirds));
 
@@ -212,7 +217,7 @@ public class StatesAndCapitals
         // Use max(), orElseThrow(), and map()
         // Can use map() and Comparator.naturalOrder()
 
-        Integer maxStateElevation = null;
+        Integer maxStateElevation = states.stream().map(StateInfo::getHighestElevationInFeet).max(Integer::compare).orElseThrow(()-> new RuntimeException());
 
         testResults.put("A31", StatesAndCapitalsCheck.adv31(maxStateElevation));
 
@@ -220,14 +225,14 @@ public class StatesAndCapitals
         // Use min(), orElseThrow(), and map()
         // Can use map() and LocalDate::compareTo
 
-        LocalDate earliestDateStateEnteredUnion = null;
+        LocalDate earliestDateStateEnteredUnion = states.stream().map(StateInfo::getDateAdmittedToUnion).min(LocalDate::compareTo).orElseThrow(()-> new RuntimeException());
 
         testResults.put("A32", StatesAndCapitalsCheck.adv32(earliestDateStateEnteredUnion));
 
         // A33. Submit the state with the least distance between its highest and lowest points
         // Use min(), comparing(), and orElse()
 
-        StateInfo stateWithLeastDistanceBetweenHighAndLowPoints = null;
+        StateInfo stateWithLeastDistanceBetweenHighAndLowPoints = states.stream().min(Comparator.comparing(StateInfo::getHighestElevationInFeet)).orElseThrow(()->new RuntimeException());
 
         testResults.put("A33", StatesAndCapitalsCheck.adv33(stateWithLeastDistanceBetweenHighAndLowPoints));
 
@@ -236,31 +241,31 @@ public class StatesAndCapitals
         // A41. Submit all state and capital names together, with each state name followed by its capital name
         // Use flatMap() and Stream.of() (for the pairs)
 
-        List<String> allStateAndCapitalNames = null;
+        List<String> allStateAndCapitalNames = states.stream().flatMap(stateInfo -> Stream.of(stateInfo.getStateName(),stateInfo.getCapital().getCapitalName())).collect(toList());
 
         testResults.put("A41", StatesAndCapitalsCheck.adv41(allStateAndCapitalNames));
 
         // A42. Submit all state and capital names together, but group each state and capital pair into a list
         // Use map(), two instances of collect(toList()), and Stream.of() (for the pairs)
 
-        List<List<String>> allStateAndCapitalNamesTogetherAsLists = null;
+        List<List<String>> allStateAndCapitalNamesTogetherAsLists = states.stream().map(stateInfo -> Stream.of(stateInfo.getStateName(),stateInfo.getCapital().getCapitalName()).collect(toList())).collect(toList());
 
         testResults.put("A42", StatesAndCapitalsCheck.adv42(allStateAndCapitalNamesTogetherAsLists));
 
         // A43. Submit all state and capital names together, but group each state as a key, and each capital as a value, in a Map
         // Use collect(toMap())
 
-        Map<String, String> stateNameToCapitalNamesMap = null;
+        Map<String, String> stateNameToCapitalNamesMap = states.stream().collect(Collectors.toMap(stateInfo -> stateInfo.getStateName(),stateInfo -> stateInfo.getCapital().getCapitalName()));
 
         testResults.put("A43", StatesAndCapitalsCheck.adv43(stateNameToCapitalNamesMap));
 
-        // ***** Expert (for people who like a challenge) *****
+        // ***** Expert (for people who like a challenge) ***** /// ok No problem *-*
         // NOTE: You will * NOT * be graded on these!
 
         // E1. Submit a list of all the denonyms that do not contain the state's name in them
         // Use flatMap(), filter()
 
-        List<String> allDenonymsThatDoNotContainStateName = null;
+        List<String> allDenonymsThatDoNotContainStateName = states.stream().flatMap(stateInfo -> stateInfo.getDenonyms().stream().filter(s -> !s.contains(stateInfo.getStateName()))).collect(toList());
 
         testResults.put("E1", StatesAndCapitalsCheck.expert1(allDenonymsThatDoNotContainStateName));
 
@@ -268,7 +273,12 @@ public class StatesAndCapitals
         // Use filter(), flatMap(), and count()
         // PS: Don't cheat by using an intermediate data structure for Honolulu!
 
-        Long totalNumberOfHonoluluSisterCitiesStartingWithCa = null;
+        Long totalNumberOfHonoluluSisterCitiesStartingWithCa =null;
+//        states.stream().filter(stateInfo -> stateInfo.getCapital().getCapitalName().matches("Honolulu"))
+//                        .flatMap(stateInfo -> stateInfo.getCapital().getSisterCities().stream().flatMap(s -> Arrays.stream(s.split(",")).filter(s1 -> s.charAt(0)))))
+
+
+
 
         testResults.put("E2", StatesAndCapitalsCheck.expert2(totalNumberOfHonoluluSisterCitiesStartingWithCa));
 
@@ -277,7 +287,7 @@ public class StatesAndCapitals
         // Use Arrays.stream(), flatMap(), map(), and collect(toList())
         // If you need a hint, look inside the E3 answer checking function
 
-        List<String> countriesOfTheWorldWithNoUSCapitalSisterCities = null;
+        List<String> countriesOfTheWorldWithNoUSCapitalSisterCities =null ;
 
         testResults.put("E3", StatesAndCapitalsCheck.expert3(countriesOfTheWorldWithNoUSCapitalSisterCities));
 
